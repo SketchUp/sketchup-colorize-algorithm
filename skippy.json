@@ -1,0 +1,19 @@
+{
+  "name": "Colorize",
+  "description": "",
+  "namespace": "Example::Colorize",
+  "basename": "ex_colorize",
+  "author": "Unknown",
+  "copyright": "Copyright (c) 2018",
+  "license": "None",
+  "sources": [
+    "github.com",
+    "bitbucket.org"
+  ],
+  "libraries": [
+
+  ],
+  "modules": [
+
+  ]
+}

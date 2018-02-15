@@ -1,0 +1,103 @@
+require 'sketchup.rb'
+
+require 'ex_colorize/colorizer'
+
+
+module Example::Colorize
+
+  unless file_loaded?(__FILE__)
+    menu = UI.menu('Plugins')
+    menu.add_item('Colorize Example') { self.colorize_image }
+    file_loaded(__FILE__)
+  end
+
+  def self.colorize_image
+    model = Sketchup.active_model
+    image = model.entities.grep(Sketchup::Image).first
+
+    model.start_operation('Colorize')
+
+    shift_hsl = model.materials['Shifted'].colorize_deltas
+    shifted_face = self.create_tile(image, 3.m)
+    self.shift_material(shifted_face, shift_hsl)
+
+    colorized_hsl = model.materials['Colorized'].colorize_deltas
+    colorized_face = self.create_tile(image, 6.m)
+    self.colorize_material(colorized_face, colorized_hsl)
+
+    model.commit_operation
+  end
+
+  def self.shift_material(face, hsl_delta)
+    self.process_material(face, hsl_delta, true)
+  end
+
+  def self.colorize_material(face, hsl_delta)
+    self.process_material(face, hsl_delta, false)
+  end
+
+  def self.process_material(face, hsl_delta, shift)
+    model = face.model
+    image_rep = face.material.texture.image_rep
+    colorizer = Colorizer.new
+    material_name = shift ? 'Shifted' : 'Colorized'
+    material = model.materials.add('Shifted')
+    material.texture = colorizer.process(image_rep, hsl_delta, shift)
+    w = face.material.texture.width
+    h = face.material.texture.height
+    material.texture.size = [w, h]
+    face.material = material
+    face.back_material = material
+    material
+  end
+
+  def self.create_tile(image, offset)
+    x = offset
+    y = 0
+    w = x + image.width
+    h = image.height
+    points = [
+      Geom::Point3d.new(x, y, 0),
+      Geom::Point3d.new(w, y, 0),
+      Geom::Point3d.new(w, h, 0),
+      Geom::Point3d.new(x, h, 0),
+    ]
+    group = image.model.entities.add_group
+    face = group.entities.add_face(points)
+    material = image.model.materials['Original']
+    mapping = [
+      points[0], Geom::Point3d.new(0, 0, 0),
+      points[1], Geom::Point3d.new(1, 0, 0),
+      points[2], Geom::Point3d.new(1, 1, 0),
+      points[3], Geom::Point3d.new(0, 1, 0),
+    ]
+    face.position_material(material, mapping, true)
+    face.position_material(material, mapping, false)
+    face
+  end
+
+
+  # @note Debug method to reload the extension.
+  #
+  # @example
+  #   Example::Colorize.reload
+  def self.reload
+    original_verbose = $VERBOSE
+    $VERBOSE = nil
+    # Core file (this)
+    load __FILE__
+    # Supporting files
+    if defined?(PATH) && File.exist?(PATH)
+      pattern = File.join(PATH, '**/*.rb')
+      x = Dir.glob(pattern).each { |file|
+        load file
+      }
+      x.length + 1
+    else
+      1
+    end
+  ensure
+    $VERBOSE = original_verbose
+  end
+
+end # module
