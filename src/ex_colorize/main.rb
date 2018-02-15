@@ -60,6 +60,8 @@ module Example::Colorize
     if mismatchs.empty?
       puts "Shiny! :)"
     else
+      # TODO: Display result in using Resemble:
+      #       https://huddle.github.io/Resemble.js/
       mismatchs.each { |i, original_color, generated_color|
         puts "Color mismatch at #{i} (Expected: #{original_color}, Actual: #{generated_color})"
       }
