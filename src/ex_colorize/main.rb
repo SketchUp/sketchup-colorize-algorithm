@@ -62,9 +62,10 @@ module Example::Colorize
     else
       # TODO: Display result in using Resemble:
       #       https://huddle.github.io/Resemble.js/
-      mismatchs.each { |i, original_color, generated_color|
-        puts "Color mismatch at #{i} (Expected: #{original_color}, Actual: #{generated_color})"
+      report = mismatchs.map { |i, original_color, generated_color|
+        "Color mismatch at #{i} (Expected: #{original_color}, Actual: #{generated_color})"
       }
+      puts report.join("\n")
     end
   end
 
