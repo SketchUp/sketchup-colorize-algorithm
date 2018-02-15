@@ -24,10 +24,12 @@ module Example::Colorize
     def colors_to_image_rep(image_rep, colors)
       width = image_rep.width
       height = image_rep.height
-      # bits_per_pixel = 32
-      bits_per_pixel = 24
       row_padding = 0
+      # TODO: SketchUp appear to crash with 32bit colors (RGBA)
+      #       Investigate why. This should work with alpha channels.
+      # bits_per_pixel = 32
       # pixel_data = colors.map(&:to_a).flatten.pack('C*')
+      bits_per_pixel = 24
       unless colors.all? { |color| color.is_a?(Sketchup::Color) }
         none_colors = colors.select { |color| !color.is_a?(Sketchup::Color) }
         p none_colors
@@ -36,6 +38,15 @@ module Example::Colorize
       # TODO: Apparently the colors needs to be BGR - at least on Windows.
       #       Is this platform dependant?
       #       Missing API feature?
+      #
+      #       C API expose SUColorOrder - which Ruby API is missing.
+      #
+      #       > SketchUpAPI expects the channels to be in different orders on
+      #       > Windows vs. Mac OS. Bitmap data is exposed in BGRA and RGBA byte
+      #       > orders on Windows and Mac OS, respectively.
+      #
+      # TODO: Typo in the description of SUColorOrder.
+      # NOTE: SUGetColorOrder(); should have been named SUImageRepGetRGBOrder().
       pixel_data = colors.map { |c| c.to_a[0, 3].reverse }.flatten.pack('C*')
       unless width * height * 3 == pixel_data.size
         puts "Expected: #{width * height * 3} - actual: #{pixel_data.size}"
