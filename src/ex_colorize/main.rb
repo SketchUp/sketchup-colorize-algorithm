@@ -6,12 +6,22 @@ require 'ex_colorize/colorizer'
 module Example::Colorize
 
   unless file_loaded?(__FILE__)
-    menu = UI.menu('Plugins')
-    menu.add_item('Colorize Example') { self.colorize_image }
+    menu = UI.menu('Plugins').add_submenu('SketchUp Colorization')
+    menu.add_item('Colorize') { self.colorize_images }
+    menu.add_separator
+    menu.add_item('Validate') { self.validate }
     file_loaded(__FILE__)
   end
 
-  def self.colorize_image
+  def self.colorize_images
+    if Sketchup.version.to_i < 18
+      message = 'Requires SketchUp 2018 or newer'
+      UI.messagebox(message)
+      raise message
+    end
+
+    # TODO: Make sure the example.skp model is opened.
+
     model = Sketchup.active_model
     image = model.entities.grep(Sketchup::Image).first
 
@@ -26,6 +36,34 @@ module Example::Colorize
     self.colorize_material(colorized_face, colorized_hsl)
 
     model.commit_operation
+
+    {
+      shifted_face => model.materials['Shifted'],
+      colorized_face => model.materials['Colorized'],
+    }
+  end
+
+  def self.validate
+    Sketchup.status_text = "Colorizing..."
+    mismatchs = []
+    self.colorize_images.each { |face, original_material|
+      Sketchup.status_text = "Comparing #{original_material.display_name}..."
+      original_colors = original_material.texture.image_rep.colors
+      generated_colors = face.material.texture.image_rep.colors
+      original_colors.each_with_index { |original_color, i|
+        generated_color = generated_colors[i]
+        next if generated_color == original_color
+        # raise "Color mismatch at #{i} (Expected: #{original_color}, Actual: #{generated_color})"
+        mismatchs << [i, original_color, generated_color]
+      }
+    }
+    if mismatchs.empty?
+      puts "Shiny! :)"
+    else
+      mismatchs.each { |i, original_color, generated_color|
+        puts "Color mismatch at #{i} (Expected: #{original_color}, Actual: #{generated_color})"
+      }
+    end
   end
 
   def self.shift_material(face, hsl_delta)
