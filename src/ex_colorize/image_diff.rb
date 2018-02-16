@@ -41,9 +41,10 @@ module Example::Colorize
     def report
       num_pixels = @width * @height
       num_matching = num_pixels - @mismatchs.size
-      total_match = (num_matching / num_pixels) * 100.0
+      total_match = (num_matching.to_f / num_pixels.to_f) * 100.0
       report = StringIO.new
-      report.puts "Matching pixels: #{num_matching} (#{total_match.round(2)}%)"
+      report.puts "Matching pixels: #{num_matching} of #{num_pixels} (#{total_match.round(2)}%)"
+      report.puts "Deviating pixels: #{@mismatchs.size}"
       deviance = 0.0
       @mismatchs.each { |i, diff|
       deviance += diff.match
