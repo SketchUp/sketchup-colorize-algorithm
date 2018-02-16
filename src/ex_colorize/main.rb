@@ -32,15 +32,15 @@ module Example::Colorize
     shifted_face = self.create_tile(image, 3.m)
     self.shift_material(shifted_face, shift_hsl)
 
-    # colorized_hsl = model.materials['Colorized'].colorize_deltas
-    # colorized_face = self.create_tile(image, 6.m)
-    # self.colorize_material(colorized_face, colorized_hsl)
+    colorized_hsl = model.materials['Colorized'].colorize_deltas
+    colorized_face = self.create_tile(image, 6.m)
+    self.colorize_material(colorized_face, colorized_hsl)
 
     model.commit_operation
 
     {
       shifted_face => model.materials['Shifted'],
-      # colorized_face => model.materials['Colorized'],
+      colorized_face => model.materials['Colorized'],
     }
   end
 
