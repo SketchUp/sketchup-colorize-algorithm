@@ -49,7 +49,7 @@ module Example::Colorize
 
       # Convert back to rgb and reassign
       if equals(ps, 0.0)
-        r, g, b = saturation2rgb(ps)
+        r, g, b = luminance2rgb(pl)
         Sketchup::Color.new(r, g, b)
       else
         r, g, b = hls2rgb(ph, pl, ps)
@@ -57,8 +57,9 @@ module Example::Colorize
       end
     end
 
-    def saturation2rgb(s)
-      [s, s, s]
+    def luminance2rgb(s)
+      r = g = b = double2byte(s)
+      [r, g, b]
     end
 
     def rgb2hls(r, g, b, a = 255)
