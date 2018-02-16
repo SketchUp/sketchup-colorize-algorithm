@@ -194,13 +194,16 @@ module Example::Colorize
     end
 
     def byte2float(value)
+      # NOTE:
       # Original C++ implementation:
       #   return (float) val / 255.0f;
       # In ruby, Float uses double, but with one less precision bit.
       # Example, given 166:
-      # C++ (float)  0.650980413
-      # C++ (double) 0.65098039215686276
-      # Ruby         0.6509803921568628
+      #   C++ (float)  0.650980413
+      #   C++ (double) 0.65098039215686276
+      #   Ruby         0.6509803921568628
+      # This difference is enough to produce deviance in the RGB channels by
+      # a value of 1 in the final results.
       value.to_f / 255.0
     end
 
