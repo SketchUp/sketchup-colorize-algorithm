@@ -204,7 +204,14 @@ module Example::Colorize
       #   Ruby         0.6509803921568628
       # This difference is enough to produce deviance in the RGB channels by
       # a value of 1 in the final results.
-      value.to_f / 255.0
+      # value.to_f / 255.0
+      emulate_single_precision(value.to_f / 255.0)
+    end
+
+    def emulate_single_precision(value)
+      # https://stackoverflow.com/a/12569607/486990
+      x = value
+      x + x * 2**29 - x * 2**29
     end
 
 
