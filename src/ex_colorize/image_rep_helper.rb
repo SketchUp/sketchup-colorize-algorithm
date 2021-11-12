@@ -1,5 +1,5 @@
 module Example::Colorize
-  class ImageRepHelper
+  module ImageRepHelper
 
     IS_WIN = Sketchup.platform == :platform_win
 
@@ -43,5 +43,5 @@ module Example::Colorize
       colors.map { |color| self.color_to_24bit(color) }.flatten.pack('C*')
     end
 
-  end # class
+  end # module
 end # module
